@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System.Security.Cryptography.X509Certificates;
+using Tamagotchi.Interacao;
 using Tamagotchi.Pokemon;
 
 namespace Tamagotchi
@@ -11,30 +12,9 @@ namespace Tamagotchi
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("ID do Pokemon");
-            string pokemonId = "1";
-
-            Mascote mascote = new Mascote();
-            mascote.Name = (string)GetParse($"https://pokeapi.co/api/v2/pokemon/{pokemonId}")["name"];
-            mascote.Heigth = (float)GetParse($"https://pokeapi.co/api/v2/pokemon/{pokemonId}")["height"];
-            mascote.Weight = (float)GetParse($"https://pokeapi.co/api/v2/pokemon/{pokemonId}")["weight"];
-            PokemonAbilities pokemonAbilities = new PokemonAbilities();
-            pokemonAbilities.Abilities = new List<string>();
-
-            JArray abilities = (JArray)GetParse($"https://pokeapi.co/api/v2/pokemon/{pokemonId}")["abilities"];
-
-            Console.WriteLine(mascote);
-
-            foreach (JObject ablt in abilities)
-            {
-                var pokeablt = ablt["ability"]["name"].ToString();
-                pokemonAbilities.Abilities.Add(pokeablt);
-                Console.WriteLine(pokeablt);
-            }
-            mascote.Abilities = new List<PokemonAbilities>
-            {
-                pokemonAbilities
-            };
+            AdocaoDeMascote adocao = new AdocaoDeMascote();
+            Console.WriteLine(adocao);
+            adocao.Menu();
         }
 
         public static JObject GetParse(string link)
