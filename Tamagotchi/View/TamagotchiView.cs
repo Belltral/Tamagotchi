@@ -1,66 +1,71 @@
 ﻿
+using Newtonsoft.Json.Linq;
 using System.Text;
-using Tamagotchi.Pokemon;
+using Tamagotchi.Controller;
+using Tamagotchi.Model;
 
-namespace Tamagotchi.Interacao
+namespace Tamagotchi.View
 {
-    public class AdocaoDeMascote
+    public class TamagotchiView
     {
         public string NomeJogador { get; set; }
+        public static PokemonsDoJogador PokemonsJogador { get; set; } = new PokemonsDoJogador(); // Classe estática e inicia a instância para armazenar os Pokemons do jogador.
 
-        public void Menu()
+        // Cria um construtor estático para a classe para instanciar a List de Pokemons da classe PokemonsDoJogador.
+        static TamagotchiView()
         {
-            while (true)
-            {
-                Console.WriteLine("Olá!");
-                Console.WriteLine("Qual seu nome?");
-                Console.Write("A: ");
-                string nomeJogador = Console.ReadLine();
-                NomeJogador = nomeJogador;
-                Console.WriteLine();
-                Console.WriteLine("-------------------- Menu --------------------");
-                Console.WriteLine($"Bem vindo(a) {NomeJogador}!");
-                Console.WriteLine();
-                Console.WriteLine("O que deseja fazer?");
-                Console.WriteLine("1 - Adotar um mascote virtual");
-                Console.WriteLine("NÂO HABILITADO! 2 - Ver seus mascotes");
-                Console.WriteLine("3 - Sair");
-                Console.Write("A: ");
-                int opcao = int.Parse(Console.ReadLine());
-                Console.WriteLine();
-                if (opcao == 1)
-                {
-                    Adotar();
-                }
-                if (opcao == 2)
-                {
-                    Console.WriteLine("Opção ainda não habilitada.");
-                }
-                if (opcao == 3)
-                {
-                    Console.WriteLine("Até logo!");
-                    Environment.Exit(0);
-                }
-            }
+            TamagotchiView.PokemonsJogador.Pokemons = new List<string>();
+        }
+
+        public void Mensagem()
+        {
+            Console.WriteLine("░▄▀▄▀▀▀▀▄▀▄░░░░░░░░░\r\n░█░░░░░░░░▀▄░░░░░░▄░\r\n█░░▀░░▀░░░░░▀▄▄░░█░█\r\n█░▄░█▀░▄░░░" +
+            "░░░░▀▀░░█\r\n█░░▀▀▀▀░░░░░░░░░░░░█\r\n█░░░░░░░░░░░░░░░░░░█\r\n█░░░░░░░░░░░░░░░░░░█\r\n░█░░▄▄░░▄▄▄" +
+            "▄░░▄▄░░█░\r\n░█░▄▀█░▄▀░░█░▄▀█░▄▀░\r\n░░▀░░░▀░░░░░▀░░░▀░░░");
+            Console.WriteLine("╔══╗╔══╗╔═╦═╗╔══╗╔══╗╔═╗╔══╗╔═╗╔╗╔╗╔══╗\r\n╚╗╔╝║╔╗║║║║║║║╔╗║║╔═╣║║║╚╗" +
+            "╔╝║╔╝║╚╝║╚║║╝\r\n─║║─║╠╣║║║║║║║╠╣║║╚╗║║║║─║║─║╚╗║╔╗║╔║║╗\r\n─╚╝─╚╝╚╝╚╩═╩" +
+            "╝╚╝╚╝╚══╝╚═╝─╚╝─╚═╝╚╝╚╝╚══╝\r\n───────────────────────────────────────");
+            Console.WriteLine();
+            Console.WriteLine("Olá!");
+            Console.WriteLine("Qual seu nome?");
+            Console.Write("A: ");
+            string nomeJogador = Console.ReadLine();
+            NomeJogador = nomeJogador;
+            Console.WriteLine();
+            Console.WriteLine($"Bem vindo(a) {NomeJogador}!");
+            Console.WriteLine();
+        }
+
+        public void MenuPrincipal()
+        {
+            Console.WriteLine("-------------------- Menu --------------------");
+            Console.WriteLine("O que deseja fazer?");
+            Console.WriteLine("1 - Adotar um mascote virtual");
+            Console.WriteLine("2 - Ver seus mascotes");
+            Console.WriteLine("3 - Sair");
+            Console.Write("A: ");
         }
 
         public void Adotar()
         {
             int escolhaFazer = 0;
+
+            //TamagotchiView.PokemonsJogador = new PokemonsDoJogador(); // Cria uma instância da classe PokemonsDoJogador.
+            //TamagotchiView.PokemonsJogador.Pokemons = new List<string>(); // Cria uma instância de List.
+
             while (true)
             {
                 Console.WriteLine("------------- Adotar um mascote --------------");
                 Console.WriteLine("Escolha o mascote: ");
                 for (int i = 1; i < 4; i++)
                 {
-                    string opcoesPokemon = (string)Program.GetParse($"https://pokeapi.co/api/v2/pokemon/{i}")["name"];
+                    string opcoesPokemon = (string)new Pokemon().GetParse($"https://pokeapi.co/api/v2/pokemon/{i}")["name"];
                     Console.WriteLine(opcoesPokemon);
                 }
                 Console.Write("A: ");
                 string escolhaPokemon = Console.ReadLine();
                 Console.WriteLine();
 
-                
                 while (true)
                 {
                     Console.WriteLine("----------------------------------------------");
@@ -76,16 +81,17 @@ namespace Tamagotchi.Interacao
                     if (escolhaFazer == 1)
                     {
                         Console.WriteLine("----------------------------------------------");
-                        new Mascote().DadosPokemon(escolhaPokemon);
+                        new TamagotchiController().DadosPokemon(escolhaPokemon);
                         Console.WriteLine();
                     }
                     if (escolhaFazer == 2)
                     {
+                        PokemonsJogador.AddPoke(escolhaPokemon);
+
                         Console.WriteLine($"O mascote foi adotado com sucesso!");
                         Console.WriteLine($"{NomeJogador}, o ovo está chocando!");
                         Console.WriteLine("  ,'\"`.\r\n /     \\\r\n:       :\r\n:       :\r\n `.___,' ");
                         Console.WriteLine();
-                        Environment.Exit(0);
                     }
                     if (escolhaFazer == 3)
                     {
@@ -100,6 +106,26 @@ namespace Tamagotchi.Interacao
                         Environment.Exit(0);
                     }
                 }
+            }
+        }
+
+        public void ListaPokemons()
+        {
+            if (PokemonsJogador.Pokemons != null)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Você possui os seguintes Pokemons:");
+                foreach (var poke in PokemonsJogador.Pokemons)
+                {
+                    Console.WriteLine(poke);
+                }
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine("Sua lista de Pokemons está vazia atualmente.");
+                Console.WriteLine();
             }
         }
 

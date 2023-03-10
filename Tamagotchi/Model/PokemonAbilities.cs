@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json.Linq;
 
-namespace Tamagotchi.Pokemon
+namespace Tamagotchi.Model
 {
     public class PokemonAbilities
     {
