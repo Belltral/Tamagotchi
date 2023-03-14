@@ -1,4 +1,7 @@
-﻿using Tamagotchi.Controller;
+﻿using AutoMapper;
+using Tamagotchi.Controller;
+using Tamagotchi.Model;
+using Tamagotchi.Model.Mapping;
 using Tamagotchi.View;
 
 namespace Tamagotchi
@@ -7,12 +10,9 @@ namespace Tamagotchi
     {
         static void Main(string[] args)
         {
-            //TamagotchiView adocao = new TamagotchiView();
-            //Console.WriteLine(adocao);
-            //adocao.MenuPrincipal();
             new TamagotchiController().Jogo();
 
-
-        }       
+            //new TamagotchiController().Adotar();
+        }
     }
 }

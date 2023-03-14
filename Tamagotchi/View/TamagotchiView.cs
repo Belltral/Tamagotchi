@@ -1,23 +1,17 @@
-﻿
-using Newtonsoft.Json.Linq;
-using System.Text;
-using Tamagotchi.Controller;
-using Tamagotchi.Model;
+﻿using Tamagotchi.Model;
 
 namespace Tamagotchi.View
 {
     public class TamagotchiView
     {
         public string NomeJogador { get; set; }
-        public static PokemonsDoJogador PokemonsJogador { get; set; } = new PokemonsDoJogador(); // Classe estática e inicia a instância para armazenar os Pokemons do jogador.
 
-        // Cria um construtor estático para a classe para instanciar a List de Pokemons da classe PokemonsDoJogador.
-        static TamagotchiView()
+        public TamagotchiView()
         {
-            TamagotchiView.PokemonsJogador.Pokemons = new List<string>();
+            BoasVindas();
         }
 
-        public void Mensagem()
+        public void BoasVindas()
         {
             Console.WriteLine("░▄▀▄▀▀▀▀▄▀▄░░░░░░░░░\r\n░█░░░░░░░░▀▄░░░░░░▄░\r\n█░░▀░░▀░░░░░▀▄▄░░█░█\r\n█░▄░█▀░▄░░░" +
             "░░░░▀▀░░█\r\n█░░▀▀▀▀░░░░░░░░░░░░█\r\n█░░░░░░░░░░░░░░░░░░█\r\n█░░░░░░░░░░░░░░░░░░█\r\n░█░░▄▄░░▄▄▄" +
@@ -38,107 +32,64 @@ namespace Tamagotchi.View
 
         public void MenuPrincipal()
         {
+            Console.WriteLine();
             Console.WriteLine("-------------------- Menu --------------------");
-            Console.WriteLine("O que deseja fazer?");
+            Console.WriteLine($"O que deseja fazer, {NomeJogador}?");
             Console.WriteLine("1 - Adotar um mascote virtual");
             Console.WriteLine("2 - Ver seus mascotes");
             Console.WriteLine("3 - Sair");
             Console.Write("A: ");
         }
 
-        public void Adotar()
+        public string EscolhaMascote(List<string> opcoesPokemon)
         {
-            int escolhaFazer = 0;
-
-            //TamagotchiView.PokemonsJogador = new PokemonsDoJogador(); // Cria uma instância da classe PokemonsDoJogador.
-            //TamagotchiView.PokemonsJogador.Pokemons = new List<string>(); // Cria uma instância de List.
-
-            while (true)
+            Console.WriteLine();
+            Console.WriteLine("------------- Adotar um mascote --------------");
+            Console.WriteLine("Escolha o mascote: ");
+            foreach(var poke in opcoesPokemon)
             {
-                Console.WriteLine("------------- Adotar um mascote --------------");
-                Console.WriteLine("Escolha o mascote: ");
-                for (int i = 1; i < 4; i++)
-                {
-                    string opcoesPokemon = (string)new Pokemon().GetParse($"https://pokeapi.co/api/v2/pokemon/{i}")["name"];
-                    Console.WriteLine(opcoesPokemon);
-                }
-                Console.Write("A: ");
-                string escolhaPokemon = Console.ReadLine();
-                Console.WriteLine();
-
-                while (true)
-                {
-                    Console.WriteLine("----------------------------------------------");
-                    Console.WriteLine("Você deseja...");
-                    Console.WriteLine($"1 - Saber mais sobre o {escolhaPokemon}");
-                    Console.WriteLine($"2 - Adotar o {escolhaPokemon}");
-                    Console.WriteLine("3 - Voltar para a seleção de mascote");
-                    Console.WriteLine("4 - Voltar para o menu principal");
-                    Console.WriteLine("5 - Finalizar");
-                    Console.Write("A: ");
-                    escolhaFazer = int.Parse(Console.ReadLine());
-                    Console.WriteLine();
-                    if (escolhaFazer == 1)
-                    {
-                        Console.WriteLine("----------------------------------------------");
-                        new TamagotchiController().DadosPokemon(escolhaPokemon);
-                        Console.WriteLine();
-                    }
-                    if (escolhaFazer == 2)
-                    {
-                        PokemonsJogador.AddPoke(escolhaPokemon);
-
-                        Console.WriteLine($"O mascote foi adotado com sucesso!");
-                        Console.WriteLine($"{NomeJogador}, o ovo está chocando!");
-                        Console.WriteLine("  ,'\"`.\r\n /     \\\r\n:       :\r\n:       :\r\n `.___,' ");
-                        Console.WriteLine();
-                    }
-                    if (escolhaFazer == 3)
-                    {
-                        break;
-                    }
-                    if (escolhaFazer == 4)
-                    {
-                        return;
-                    }
-                    if (escolhaFazer == 5)
-                    {
-                        Environment.Exit(0);
-                    }
-                }
+                Console.WriteLine(poke);
             }
+            Console.Write("A: ");
+            return Console.ReadLine();
         }
 
-        public void ListaPokemons()
+        public int InfoPokemonMensagem(string opcaoMascote)
         {
-            if (PokemonsJogador.Pokemons != null)
-            {
-                Console.WriteLine();
-                Console.WriteLine("Você possui os seguintes Pokemons:");
-                foreach (var poke in PokemonsJogador.Pokemons)
-                {
-                    Console.WriteLine(poke);
-                }
-                Console.WriteLine();
-            }
-            else
-            {
-                Console.WriteLine();
-                Console.WriteLine("Sua lista de Pokemons está vazia atualmente.");
-                Console.WriteLine();
-            }
+            Console.WriteLine();
+            Console.WriteLine("----------------------------------------------");
+            Console.WriteLine($"{NomeJogador}, você deseja...");
+            Console.WriteLine($"1 - Saber mais sobre o {opcaoMascote}");
+            Console.WriteLine($"2 - Adotar o {opcaoMascote}");
+            Console.WriteLine("3 - Voltar para o menu principal");
+            Console.Write("A: ");
+            return int.Parse(Console.ReadLine());
         }
 
-        public override string ToString()
+        public void InfosSobrePokemon(Pokemon pokeDados)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("░▄▀▄▀▀▀▀▄▀▄░░░░░░░░░\r\n░█░░░░░░░░▀▄░░░░░░▄░\r\n█░░▀░░▀░░░░░▀▄▄░░█░█\r\n█░▄░█▀░▄░░░" +
-                "░░░░▀▀░░█\r\n█░░▀▀▀▀░░░░░░░░░░░░█\r\n█░░░░░░░░░░░░░░░░░░█\r\n█░░░░░░░░░░░░░░░░░░█\r\n░█░░▄▄░░▄▄▄" +
-                "▄░░▄▄░░█░\r\n░█░▄▀█░▄▀░░█░▄▀█░▄▀░\r\n░░▀░░░▀░░░░░▀░░░▀░░░");
-            sb.AppendLine("╔══╗╔══╗╔═╦═╗╔══╗╔══╗╔═╗╔══╗╔═╗╔╗╔╗╔══╗\r\n╚╗╔╝║╔╗║║║║║║║╔╗║║╔═╣║║║╚╗" +
-                "╔╝║╔╝║╚╝║╚║║╝\r\n─║║─║╠╣║║║║║║║╠╣║║╚╗║║║║─║║─║╚╗║╔╗║╔║║╗\r\n─╚╝─╚╝╚╝╚╩═╩" +
-                "╝╚╝╚╝╚══╝╚═╝─╚╝─╚═╝╚╝╚╝╚══╝\r\n───────────────────────────────────────");
-            return sb.ToString();
+            Console.WriteLine();
+            Console.WriteLine("----------------------------------------------");
+            Console.WriteLine(pokeDados);
+        }
+
+        public void AdocaoMensagem()
+        {
+            Console.WriteLine();
+            Console.WriteLine($"O mascote foi adotado com sucesso!");
+            Console.WriteLine($"{NomeJogador}, o ovo está chocando!");
+            Console.WriteLine("  ,'\"`.\r\n /     \\\r\n:       :\r\n:       :\r\n `.___,' ");
+            Console.WriteLine();
+        }
+
+        public void ListaPokemonsMensagem(List<Mascote> mascotesAdotados)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Você possui os seguintes mascotes: ");
+            foreach (var adotados in mascotesAdotados)
+            {                
+                Console.WriteLine(adotados.Name);
+            }
         }
 
     }

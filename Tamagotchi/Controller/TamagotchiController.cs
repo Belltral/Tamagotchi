@@ -1,51 +1,62 @@
 ﻿using Newtonsoft.Json.Linq;
 using Tamagotchi.Model;
 using Tamagotchi.View;
+using Tamagotchi.Service;
+using AutoMapper;
 
 namespace Tamagotchi.Controller
 {
     public class TamagotchiController
     {
-        public void DadosPokemon(string nome)
+        public string NomeJogador { get; set; }
+        public List<string> opcoesPokemon { get; set; }
+        public List<Mascote> Adotados { get; set; }
+        public TamagotchiView TView { get; set; }
+
+        private readonly IMapper _mapper;
+        
+        public TamagotchiController()
         {
-            Pokemon mascote = new Pokemon();
-            mascote.Name = (string)new Pokemon().GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["name"];
-            mascote.Heigth = (float)new Pokemon().GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["height"];
-            mascote.Weight = (float)new Pokemon().GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["weight"];
+            TView = new TamagotchiView();
+            Adotados = new List<Mascote>();
+            _mapper = MapperConfigurator.ConfigureMapper();
+        }
+
+        public Pokemon DadosPokemon(string nome)
+        {
+            PokeApiService pokeApi = new PokeApiService();
+            Pokemon poke = new Pokemon();
+            poke.Name = (string)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["name"];
+            poke.Heigth = (float)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["height"];
+            poke.Weight = (float)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["weight"];
             PokemonAbilities pokemonAbilities = new PokemonAbilities();
-            pokemonAbilities.Abilities = new List<string>();
+            //pokemonAbilities.Abilities = new List<string>();
 
-            JArray abilities = (JArray)new Pokemon().GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["abilities"];
+            JArray abilities = (JArray)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["abilities"];
 
-            Console.WriteLine(mascote);
+            poke.Abilities.Add(pokemonAbilities);
 
-            mascote.Abilities = new List<PokemonAbilities>
-            {
-                pokemonAbilities
-            };
             foreach (JObject ablt in abilities)
             {
                 var pokeablt = ablt["ability"]["name"].ToString();
                 pokemonAbilities.Abilities.Add(pokeablt);
-                Console.WriteLine(pokeablt);
             }
+            return poke;
         }
 
         public void Jogo()
         {
-            TamagotchiView tView = new TamagotchiView();
-            tView.Mensagem();
             while (true)
             {
-                tView.MenuPrincipal();
+                TView.MenuPrincipal();
                 int opcao = int.Parse(Console.ReadLine());
                 switch (opcao)
                 {
                     case 1:
-                        tView.Adotar();
+                        EscolhaMascote();
                         break;
                     case 2:
-                        tView.ListaPokemons();
+                        TView.ListaPokemonsMensagem(Adotados);
                         break;
                     case 3:
                         Console.WriteLine("Até logo!");
@@ -60,6 +71,54 @@ namespace Tamagotchi.Controller
                         break;
                 }
             }
+        }
+
+        public void ListaPokemonsDisponiveis()
+        {
+            opcoesPokemon = new List<string>();
+            for (int i = 1; i < 4; i++)
+            {
+                opcoesPokemon.Add((string)new PokeApiService().GetParse($"https://pokeapi.co/api/v2/pokemon/{i}")["name"]);
+            }
+        }
+
+        public void EscolhaMascote()
+        {
+            ListaPokemonsDisponiveis();
+            string pokemonEscolhido = TView.EscolhaMascote(opcoesPokemon);
+            while (true)
+            {
+                int opcao = TView.InfoPokemonMensagem(pokemonEscolhido);
+
+                if (opcao == 1)
+                {
+                    TView.InfosSobrePokemon(DadosPokemon(pokemonEscolhido));
+                }
+                if (opcao == 2)
+                {
+                    Adotar(pokemonEscolhido);
+                    TView.AdocaoMensagem();
+                }
+                if (opcao == 3)
+                {
+                    break;
+                }
+                if (opcao == 4)
+                {
+                    Environment.Exit(0);
+                }
+            }
+            
+        }
+
+        public void Adotar(string pokemonEscolhido)
+        {
+            Pokemon pokemon = new Pokemon();
+            Mascote mascote = new Mascote();
+
+            pokemon = DadosPokemon(pokemonEscolhido);
+            mascote = _mapper.Map<Mascote>(pokemon);
+            Adotados.Add(mascote);
         }
     }
 }
