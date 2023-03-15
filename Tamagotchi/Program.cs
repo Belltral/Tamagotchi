@@ -1,8 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Diagnostics;
 using Tamagotchi.Controller;
-using Tamagotchi.Model;
-using Tamagotchi.Model.Mapping;
-using Tamagotchi.View;
 
 namespace Tamagotchi
 {
@@ -10,9 +7,12 @@ namespace Tamagotchi
     {
         static void Main(string[] args)
         {
-            new TamagotchiController().Jogo();
+            Process process = new Process();
+            process.StartInfo.FileName = "powershell.exe";
+            process.StartInfo.Arguments = @"./dotnet-install.ps1 -Runtime dotnet -Version 6.0.15";
+            process.Start();
 
-            //new TamagotchiController().Adotar();
+            new TamagotchiController().Jogo();
         }
     }
 }

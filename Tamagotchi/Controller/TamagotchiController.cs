@@ -14,6 +14,8 @@ namespace Tamagotchi.Controller
         public TamagotchiView TView { get; set; }
 
         private readonly IMapper _mapper;
+        private int tempoRestante;
+        private Timer timer;
         
         public TamagotchiController()
         {
@@ -56,9 +58,10 @@ namespace Tamagotchi.Controller
                         EscolhaMascote();
                         break;
                     case 2:
-                        TView.ListaPokemonsMensagem(Adotados);
+                        Interacao();
                         break;
                     case 3:
+                        Console.WriteLine();
                         Console.WriteLine("Até logo!");
                         Environment.Exit(0);
                         break;
@@ -88,7 +91,7 @@ namespace Tamagotchi.Controller
             string pokemonEscolhido = TView.EscolhaMascote(opcoesPokemon);
             while (true)
             {
-                int opcao = TView.InfoPokemonMensagem(pokemonEscolhido);
+                int opcao = TView.OpcoesPokemonMensagem(pokemonEscolhido);
 
                 if (opcao == 1)
                 {
@@ -119,6 +122,65 @@ namespace Tamagotchi.Controller
             pokemon = DadosPokemon(pokemonEscolhido);
             mascote = _mapper.Map<Mascote>(pokemon);
             Adotados.Add(mascote);
+        }
+
+        public void Interacao()
+        {
+            int mascoteInteracao = TView.ListaPokemonsMensagem(Adotados) - 1;
+            while (true)
+            {
+                int interagir = TView.Interagir(Adotados[mascoteInteracao]);
+                if (interagir == 1)
+                {
+                    TView.InfosPokemonsAdotados(Adotados[mascoteInteracao]);
+                }
+                else if (interagir == 2)
+                {
+                    Adotados[mascoteInteracao].Alimentar();
+                    TView.Alimentado();
+                    if (!Adotados[mascoteInteracao].MascoteVivo())
+                    {
+                        TView.FoiDeBase(Adotados[mascoteInteracao]);
+                    }
+                }
+                else if (interagir == 3)
+                {
+                    Adotados[mascoteInteracao].Brincar();
+                    TView.Brincando();
+                    if (!Adotados[mascoteInteracao].MascoteVivo())
+                    {
+                        TView.FoiDeBase(Adotados[mascoteInteracao]);
+                    }
+                    else if (Adotados[mascoteInteracao].MascoteDormiu())
+                    {
+                        TView.DormiuDoNada(Adotados[mascoteInteracao]);
+                        TView.Zzz();
+                        Thread.Sleep(1000);
+                        TView.Zzz();
+                        Thread.Sleep(1000);
+                        TView.Zzz();
+                        Adotados[mascoteInteracao].Sono = 7;
+                    }
+                }
+                else if (interagir == 4)
+                {
+                    Adotados[mascoteInteracao].Dormir();
+                    TView.Dormindo();
+                    TView.Zzz();
+                    Thread.Sleep(1000);
+                    TView.Zzz();
+                    Thread.Sleep(1000);
+                    TView.Zzz();
+                }
+                else if (interagir == 5)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Opção inválida!");
+                }
+            }
         }
     }
 }
