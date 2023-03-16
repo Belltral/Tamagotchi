@@ -3,6 +3,8 @@ using Tamagotchi.Model;
 using Tamagotchi.View;
 using Tamagotchi.Service;
 using AutoMapper;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace Tamagotchi.Controller
 {
@@ -16,7 +18,7 @@ namespace Tamagotchi.Controller
         private readonly IMapper _mapper;
         private int tempoRestante;
         private Timer timer;
-        
+
         public TamagotchiController()
         {
             TView = new TamagotchiView();
@@ -27,91 +29,164 @@ namespace Tamagotchi.Controller
         public Pokemon DadosPokemon(string nome)
         {
             PokeApiService pokeApi = new PokeApiService();
-            Pokemon poke = new Pokemon();
-            poke.Name = (string)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["name"];
-            poke.Heigth = (float)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["height"];
-            poke.Weight = (float)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["weight"];
-            PokemonAbilities pokemonAbilities = new PokemonAbilities();
-            //pokemonAbilities.Abilities = new List<string>();
-
-            JArray abilities = (JArray)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["abilities"];
-
-            poke.Abilities.Add(pokemonAbilities);
-
-            foreach (JObject ablt in abilities)
+            Pokemon pokemon = new Pokemon();
+            try
             {
-                var pokeablt = ablt["ability"]["name"].ToString();
-                pokemonAbilities.Abilities.Add(pokeablt);
+                pokemon.Name = (string)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["name"];
+                pokemon.Heigth = (float)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["height"];
+                pokemon.Weight = (float)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["weight"];
+                PokemonAbilities pokemonAbilities = new PokemonAbilities();
+                //pokemonAbilities.Abilities = new List<string>();
+
+                JArray abilities = (JArray)pokeApi.GetParse($"https://pokeapi.co/api/v2/pokemon/{nome}")["abilities"];
+
+                pokemon.Abilities.Add(pokemonAbilities);
+
+                foreach (JObject ablt in abilities)
+                {
+                    var pokeablt = ablt["ability"]["name"].ToString();
+                    pokemonAbilities.Abilities.Add(pokeablt);
+                }
+                return pokemon;
             }
-            return poke;
+            catch (WebException)
+            {
+                TView.WebException();
+            }
+            catch (HttpRequestException)
+            {
+                TView.HttpRequestException();
+            }
+            catch (JsonReaderException e)
+            {
+                throw new JsonReaderException(e.Message);
+            }
+            return pokemon;
         }
 
         public void Jogo()
         {
+
             while (true)
             {
-                TView.MenuPrincipal();
-                int opcao = int.Parse(Console.ReadLine());
-                switch (opcao)
+                try
                 {
-                    case 1:
-                        EscolhaMascote();
-                        break;
-                    case 2:
-                        Interacao();
-                        break;
-                    case 3:
-                        Console.WriteLine();
-                        Console.WriteLine("Até logo!");
-                        Environment.Exit(0);
-                        break;
-                    default:
-                        Console.WriteLine();
-                        Console.WriteLine(" ----------------- ");
-                        Console.WriteLine("| Opção inválida! |");
-                        Console.WriteLine(" ----------------- ");
-                        Console.WriteLine();
-                        break;
+                    int opcao = TView.MenuPrincipal();
+                    switch (opcao)
+                    {
+                        case 1:
+                            EscolhaMascote();
+                            break;
+                        case 2:
+                            Interacao();
+                            break;
+                        case 3:
+                            Console.WriteLine();
+                            Console.WriteLine("Até logo!");
+                            Environment.Exit(0);
+                            break;
+                        default:
+                            Console.WriteLine();
+                            Console.WriteLine(" ----------------- ");
+                            Console.WriteLine("| Opção inválida! |");
+                            Console.WriteLine(" ----------------- ");
+                            Console.WriteLine();
+                            break;
+                    }
+                }
+                catch (ArgumentNullException)
+                {
+                    TView.ValorIncorreto();
+                }
+                catch (FormatException)
+                {
+                    TView.ValorIncorreto();
                 }
             }
+
         }
 
         public void ListaPokemonsDisponiveis()
         {
             opcoesPokemon = new List<string>();
-            for (int i = 1; i < 4; i++)
+            try
             {
-                opcoesPokemon.Add((string)new PokeApiService().GetParse($"https://pokeapi.co/api/v2/pokemon/{i}")["name"]);
+                for (int i = 1; i < 4; i++)
+                {
+                    opcoesPokemon.Add((string)new PokeApiService().GetParse($"https://pokeapi.co/api/v2/pokemon/{i}")["name"]);
+                }
+            }
+            catch (WebException)
+            {
+                TView.WebException();
+            }
+            catch (HttpRequestException)
+            {
+                TView.HttpRequestException();
             }
         }
 
         public void EscolhaMascote()
         {
             ListaPokemonsDisponiveis();
-            string pokemonEscolhido = TView.EscolhaMascote(opcoesPokemon);
             while (true)
             {
-                int opcao = TView.OpcoesPokemonMensagem(pokemonEscolhido);
+                string pokemonEscolhido = TView.EscolhaMascote(opcoesPokemon);
 
-                if (opcao == 1)
+                if (opcoesPokemon.Contains(pokemonEscolhido))
                 {
-                    TView.InfosSobrePokemon(DadosPokemon(pokemonEscolhido));
+                    while (true)
+                    {
+                        try
+                        {
+                            int opcao = TView.OpcoesPokemonMensagem(pokemonEscolhido);
+
+                            if (opcao == 1)
+                            {
+                                TView.InfosSobrePokemon(DadosPokemon(pokemonEscolhido));
+                            }
+                            else if (opcao == 2)
+                            {
+                                Adotar(pokemonEscolhido);
+                                TView.AdocaoMensagem();
+                            }
+                            else if (opcao == 3)
+                            {
+                                break;
+                            }
+                            else if (opcao == 4)
+                            {
+                                Environment.Exit(0);
+                            }
+                            else
+                            {
+                                Console.WriteLine();
+                                Console.WriteLine(" ---------------------------------------------");
+                                Console.WriteLine("| Opção inválida. Por favor, tente novamente! |");
+                                Console.WriteLine(" ---------------------------------------------");
+                            }
+                        }
+                        catch (ArgumentNullException)
+                        {
+                            TView.ValorIncorreto();
+                        }
+                        catch (FormatException)
+                        {
+                            TView.ValorIncorreto();
+                        }
+                    }
+
                 }
-                if (opcao == 2)
+                else
                 {
-                    Adotar(pokemonEscolhido);
-                    TView.AdocaoMensagem();
-                }
-                if (opcao == 3)
-                {
-                    break;
-                }
-                if (opcao == 4)
-                {
-                    Environment.Exit(0);
+                    Console.WriteLine();
+                    Console.WriteLine(" --------------------------------");
+                    Console.WriteLine("| Nome inexistente ou incorreto. |");
+                    Console.WriteLine(" --------------------------------");
                 }
             }
-            
+
+
         }
 
         public void Adotar(string pokemonEscolhido)
@@ -127,58 +202,80 @@ namespace Tamagotchi.Controller
         public void Interacao()
         {
             int mascoteInteracao = TView.ListaPokemonsMensagem(Adotados) - 1;
-            while (true)
+            if (mascoteInteracao == 99)
             {
-                int interagir = TView.Interagir(Adotados[mascoteInteracao]);
-                if (interagir == 1)
+                return;
+            }
+            else
+            {
+                while (true)
                 {
-                    TView.InfosPokemonsAdotados(Adotados[mascoteInteracao]);
-                }
-                else if (interagir == 2)
-                {
-                    Adotados[mascoteInteracao].Alimentar();
-                    TView.Alimentado();
-                    if (!Adotados[mascoteInteracao].MascoteVivo())
+                    try
                     {
-                        TView.FoiDeBase(Adotados[mascoteInteracao]);
+                        int interagir = TView.Interagir(Adotados[mascoteInteracao]);
+                        if (interagir == 1)
+                        {
+                            TView.InfosPokemonsAdotados(Adotados[mascoteInteracao]);
+                        }
+                        else if (interagir == 2)
+                        {
+                            Adotados[mascoteInteracao].Alimentar();
+                            TView.Alimentado();
+                            if (!Adotados[mascoteInteracao].MascoteVivo())
+                            {
+                                TView.FoiDeBase(Adotados[mascoteInteracao]);
+                            }
+                        }
+                        else if (interagir == 3)
+                        {
+                            Adotados[mascoteInteracao].Brincar();
+                            TView.Brincando();
+                            if (!Adotados[mascoteInteracao].MascoteVivo())
+                            {
+                                TView.FoiDeBase(Adotados[mascoteInteracao]);
+                            }
+                            else if (Adotados[mascoteInteracao].MascoteDormiu())
+                            {
+                                TView.DormiuDoNada();
+                                TView.Zzz();
+                                Thread.Sleep(1000);
+                                TView.Zzz();
+                                Thread.Sleep(1000);
+                                TView.Zzz();
+                                Adotados[mascoteInteracao].Sono = 7;
+                            }
+                        }
+                        else if (interagir == 4)
+                        {
+                            Adotados[mascoteInteracao].Dormir();
+                            TView.Dormindo();
+                            TView.Zzz();
+                            Thread.Sleep(1000);
+                            TView.Zzz();
+                            Thread.Sleep(1000);
+                            TView.Zzz();
+                        }
+                        else if (interagir == 5)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine(" -----------------");
+                            Console.WriteLine("| Opção inválida! |");
+                            Console.WriteLine(" -----------------");
+                        }
                     }
-                }
-                else if (interagir == 3)
-                {
-                    Adotados[mascoteInteracao].Brincar();
-                    TView.Brincando();
-                    if (!Adotados[mascoteInteracao].MascoteVivo())
+
+                    catch (ArgumentNullException)
                     {
-                        TView.FoiDeBase(Adotados[mascoteInteracao]);
+                        TView.ValorIncorreto();
                     }
-                    else if (Adotados[mascoteInteracao].MascoteDormiu())
+                    catch (FormatException)
                     {
-                        TView.DormiuDoNada(Adotados[mascoteInteracao]);
-                        TView.Zzz();
-                        Thread.Sleep(1000);
-                        TView.Zzz();
-                        Thread.Sleep(1000);
-                        TView.Zzz();
-                        Adotados[mascoteInteracao].Sono = 7;
+                        TView.ValorIncorreto();
                     }
-                }
-                else if (interagir == 4)
-                {
-                    Adotados[mascoteInteracao].Dormir();
-                    TView.Dormindo();
-                    TView.Zzz();
-                    Thread.Sleep(1000);
-                    TView.Zzz();
-                    Thread.Sleep(1000);
-                    TView.Zzz();
-                }
-                else if (interagir == 5)
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Opção inválida!");
                 }
             }
         }

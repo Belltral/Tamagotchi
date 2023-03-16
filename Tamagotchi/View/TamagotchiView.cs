@@ -36,11 +36,11 @@ namespace Tamagotchi.View
             string nomeJogador = Console.ReadLine();
             NomeJogador = nomeJogador;
             Console.WriteLine();
-            Console.WriteLine($"Bem vindo(a) {NomeJogador}!");
             Console.WriteLine();
+            Console.WriteLine($"Bem vindo(a) {NomeJogador}!");
         }
 
-        public void MenuPrincipal()
+        public int MenuPrincipal()
         {
             Console.WriteLine();
             Console.WriteLine("-------------------- Menu --------------------");
@@ -49,6 +49,7 @@ namespace Tamagotchi.View
             Console.WriteLine("2 - Ver seus mascotes");
             Console.WriteLine("3 - Sair");
             Console.Write("A: ");
+            return int.Parse(Console.ReadLine());
         }
 
         public string EscolhaMascote(List<string> opcoesPokemon)
@@ -56,7 +57,7 @@ namespace Tamagotchi.View
             Console.WriteLine();
             Console.WriteLine("------------- Adotar um mascote --------------");
             Console.WriteLine("Escolha o mascote: ");
-            foreach(var poke in opcoesPokemon)
+            foreach (var poke in opcoesPokemon)
             {
                 Console.WriteLine(poke);
             }
@@ -72,6 +73,7 @@ namespace Tamagotchi.View
             Console.WriteLine($"1 - Saber mais sobre o {opcaoMascote}");
             Console.WriteLine($"2 - Adotar o {opcaoMascote}");
             Console.WriteLine("3 - Voltar para o menu principal");
+            Console.WriteLine("4 - Finalizar");
             Console.Write("A: ");
             return int.Parse(Console.ReadLine());
         }
@@ -127,16 +129,27 @@ namespace Tamagotchi.View
 
         public int ListaPokemonsMensagem(List<Mascote> mascotesAdotados)
         {
-            Console.WriteLine();
-            Console.WriteLine("----------------------------------------------");
-            Console.WriteLine("Você possui os seguintes mascotes: ");
-            for (int i = 0; i < mascotesAdotados.Count; i++)
+            if (mascotesAdotados.Count != 0)
             {
-                Console.WriteLine($"{i + 1} - {mascotesAdotados[i].Name}");
+                Console.WriteLine();
+                Console.WriteLine("----------------------------------------------");
+                Console.WriteLine("Você possui os seguintes mascotes: ");
+                for (int i = 0; i < mascotesAdotados.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1} - {mascotesAdotados[i].Name}");
+                }
+                Console.WriteLine("Com qual mascote deseja interagir?");
+                Console.Write("A: ");
+                return int.Parse(Console.ReadLine());
             }
-            Console.WriteLine("Com qual mascote deseja interagir?");
-            Console.Write("A: ");
-            return int.Parse(Console.ReadLine());
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine(" -----------------------------------------------");
+                Console.WriteLine("| No momento você não possui mascotes adotados. |");
+                Console.WriteLine(" -----------------------------------------------");
+            }
+            return 100;
         }
 
         public int Interagir(Mascote mascote)
@@ -153,16 +166,21 @@ namespace Tamagotchi.View
             return int.Parse(Console.ReadLine());
         }
 
+        // Mensagens de interações
         public void Alimentado()
         {
             Console.WriteLine();
-            Console.WriteLine("O mascote foi alimentado!");
+            Console.WriteLine(" ---------------------------");
+            Console.WriteLine("| O mascote foi alimentado! |");
+            Console.WriteLine(" ---------------------------");
         }
 
         public void Brincando()
         {
             Console.WriteLine();
-            Console.WriteLine("O mascote está feliz porque está bricando!");
+            Console.WriteLine(" --------------------------------------------");
+            Console.WriteLine("| O mascote está feliz porque está bricando! |");
+            Console.WriteLine(" --------------------------------------------");
         }
 
         public void Dormindo()
@@ -194,7 +212,7 @@ namespace Tamagotchi.View
             //Console.WriteLine("\r\n          ,.-·^*ª'` ·,                        ,.,   '          ,·'´¨;.  '                                  _,.,  °                              , ·. ,.-·~·.,   ‘        ,.-.                                 _,.,  °         ,. -  .,              \r\n       .·´ ,·'´:¯'`·,  '\\‘                   ;´   '· .,         ;   ';:\\           .·´¨';\\           ,.·'´  ,. ,  `;\\ '                           /  ·'´,.-·-.,   `,'‚       /   ';\\ '                       ,.·'´  ,. ,  `;\\ '     ,' ,. -  .,  `' ·,       \r\n     ,´  ,'\\:::::::::\\,.·\\'                .´  .-,    ';\\      ;     ';:'\\      .'´     ;:'\\        .´   ;´:::::\\`'´ \\'\\                          /  .'´\\:::::::'\\   '\\ °    ';    ;:'\\      ,·'´';          .´   ;´:::::\\`'´ \\'\\     '; '·~;:::::'`,   ';\\    \r\n    /   /:::\\;·'´¯'`·;\\:::\\°             /   /:\\:';   ;:'\\'    ;   ,  '·:;  .·´,.´';  ,'::;'       /   ,'::\\::::::\\:::\\:'                      ,·'  ,'::::\\:;:-·-:';  ';\\‚     ';   ;::;     ,'  ,''\\        /   ,'::\\::::::\\:::\\:'     ;   ,':\\::;:´  .·´::\\'  \r\n   ;   ;:::;'          '\\;:·´           ,'  ,'::::'\\';  ;::';   ;   ;'`.    ¨,.·´::;'  ;:::;       ;   ;:;:-·'~^ª*';\\'´                       ;.   ';:::;´       ,'  ,':'\\‚    ';   ';::;   ,'  ,':::'\\'     ;   ;:;:-·'~^ª*';\\'´       ;  ·'-·'´,.-·'´:::::::'; \r\n  ';   ;::/      ,·´¯';  °         ,.-·'  '·~^*'´¨,  ';::;   ;  ';::; \\*´\\:::::;  ,':::;‘       ;  ,.-·:*'´¨'`*´\\::\\ '                       ';   ;::;       ,'´ .'´\\::';‚    ';   ;:;  ,'  ,':::::;'     ;  ,.-·:*'´¨'`*´\\::\\ '    ;´    ':,´:::::::::::·´'  \r\n  ';   '·;'   ,.·´,    ;'\\           ':,  ,·:²*´¨¯'`;  ;::';  ';  ,'::;   \\::\\;:·';  ;:::; '      ;   ;\\::::::::::::'\\;'                        ';   ':;:   ,.·´,.·´::::\\;'°     ;   ;:;'´ ,'::::::;'  '   ;   ;\\::::::::::::'\\;'      ';  ,    `·:;:-·'´       \r\n  \\'·.    `'´,.·:´';   ;::\\'         ,'  / \\::::::::';  ;::';  ;  ';::;     '*´  ;',·':::;‘        ;  ;'_\\_:;:: -·^*';\\                         \\·,   `*´,.·'´::::::;·´        ';   '´ ,·':::::;'        ;  ;'_\\_:;:: -·^*';\\      ; ,':\\'`:·.,  ` ·.,      \r\n   '\\::\\¯::::::::';   ;::'; ‘      ,' ,'::::\\·²*'´¨¯':,'\\:;   \\´¨\\::;          \\¨\\::::;         ';    ,  ,. -·:*'´:\\:'\\°                        \\\\:¯::\\:::::::;:·´            ,'   ,.'\\::;·´          ';    ,  ,. -·:*'´:\\:'\\°    \\·-;::\\:::::'`:·-.,';    \r\n     `·:\\:::;:·´';.·´\\::;'         \\`¨\\:::/          \\::\\'    '\\::\\;            \\:\\;·'           \\`*´ ¯\\:::::::::::\\;' '                        `\\:::::\\;::·'´  °             \\`*´\\:::\\;     ‘        \\`*´ ¯\\:::::::::::\\;' '    \\::\\:;'` ·:;:::::\\::\\'  \r\n         ¯      \\::::\\;'‚          '\\::\\;'            '\\;'  '    '´¨               ¨'               \\:::::\\;::-·^*'´                                 ¯                         '\\:::\\;'                  \\:::::\\;::-·^*'´          '·-·'       `' · -':::'' \r\n                  '\\:·´'              `¨'                                                           `*´¯                                           ‘                           `*´‘                     `*´¯                                         \r\n");
         }
 
-        public void DormiuDoNada(Mascote mascote)
+        public void DormiuDoNada()
         {
             Console.WriteLine();
             Console.WriteLine("----------------------------------------------");
@@ -214,6 +232,25 @@ namespace Tamagotchi.View
             Console.Write("z");
             Thread.Sleep(600);
             Console.Write("z");
+        }
+
+        // Exceções
+        public void ValorIncorreto()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Opção incorreta. Por favor, tente novamente.");
+            Console.WriteLine();
+        }
+        public void WebException()
+        {
+            Console.WriteLine("Ocorreu um erro ao tentar se conectar à API de Pokemons.");
+            Console.WriteLine("O problema pode ocorrer por falta de conexão ou o servidor estár indisponível.");
+            Console.WriteLine("Verifique sua conexão de rede e/ou tente novamente mais tarde.");
+        }
+        public void HttpRequestException()
+        {
+            Console.WriteLine("Ocorreu um erro na solicitação para o servidor.");
+            Console.WriteLine("Verifique os nomes digitados e tente novamente.");
         }
     }
 }
